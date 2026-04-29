@@ -1,0 +1,551 @@
+<script>
+(function() {
+  // VISITOR ID GENERATOR & TRACKING
+  function getVisitorId() {
+    let visitorId = localStorage.getItem('j4u_visitor_id');
+    if (!visitorId) {
+      visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('j4u_visitor_id', visitorId);
+    }
+    return visitorId;
+  }
+  function trackPageVisit() {
+    const visitorId = getVisitorId();
+    const pageUrl = window.location.pathname.split('/').pop() || '2-upsell-plans';
+    const timestamp = new Date().toISOString();
+    const tierViewed = sessionStorage.getItem('j4u_tier_viewed') || 'N/A';
+    const webhookUrl = 'https://hooks.zapier.com/hooks/catch/19154433/2765onh/';
+    if (webhookUrl.includes('YOUR_ZAP')) return;
+    const payload = {visitor_id: visitorId, page_visited: pageUrl, timestamp: timestamp, tier_viewed: tierViewed};
+    fetch(webhookUrl, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)}).catch(err => {});
+  }
+  function trackTierClick() {
+    document.addEventListener('click', function(e) {
+      const button = e.target.closest('.plan-cta, .btn');
+      if (button) {
+        const tierText = button.textContent.toLowerCase();
+        let tier = 'unknown';
+        if (tierText.includes('starter')) tier = '1-Connection';
+        if (tierText.includes('multi-room') || tierText.includes('duo')) tier = '2-Connection';
+        if (tierText.includes('family') || tierText.includes('elite')) tier = '3-Connection';
+        sessionStorage.setItem('j4u_tier_viewed', tier);
+      }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      trackPageVisit();
+      trackTierClick();
+    });
+  } else {
+    trackPageVisit();
+    trackTierClick();
+  }
+})();
+</script>
+
+<style>
+  :root{
+    --bg:#0b0d12;--bg-2:#111520;--card:#161b27;--card-2:#1c2233;
+    --primary:#ff6a00;--primary-2:#ff9800;
+    --text:#ffffff;--muted:rgba(255,255,255,.7);--faint:rgba(255,255,255,.5);
+    --border:rgba(255,255,255,.08);--success:#22c55e;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+  .container{max-width:1200px;margin:0 auto;padding:0 24px}
+  a{color:inherit;text-decoration:none}
+  /* PROMO BAR */
+  .promo-bar{background:linear-gradient(90deg,var(--primary),var(--primary-2));color:#fff;text-align:center;padding:10px 16px;font-size:14px;font-weight:600;position:relative;z-index:101}
+  .promo-bar strong{font-weight:800;margin:0 4px}
+  .promo-bar .promo-ico{display:inline-flex;vertical-align:middle;width:18px;height:18px;margin-right:8px}
+  .promo-bar .promo-ico svg{width:100%;height:100%}
+  .promo-bar .code{background:#0b0d12;color:#ffb347;padding:2px 10px;border-radius:6px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:13px;letter-spacing:.05em;margin-left:6px}
+  /* NAV */
+  .nav{position:sticky;top:0;z-index:100;background:rgba(11,13,18,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .nav-inner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 0;gap:18px}
+  .nav-links{display:flex;gap:28px;list-style:none;justify-content:flex-start}
+  .nav-links a{color:var(--muted);font-weight:500;transition:color .2s}
+  .nav-links a:hover{color:var(--primary)}
+  .nav-right{display:flex;justify-content:flex-end}
+  .logo{display:flex;align-items:center;gap:16px;font-weight:800;font-size:30px;justify-content:center;text-align:center}
+  .logo-mark{width:150px;height:150px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .logo-mark svg, .logo-mark img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(255,106,0,.25))}
+  .nav-cta{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;padding:10px 22px;border-radius:999px;font-weight:700;font-size:14px;transition:transform .2s,box-shadow .2s}
+  .nav-cta:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,106,0,.35)}
+  @media(max-width:768px){.nav-inner{grid-template-columns:1fr;gap:14px;padding:14px 0}.nav-links{justify-content:center;gap:18px;font-size:14px;flex-wrap:wrap}.nav-right{justify-content:center}}
+  /* HERO */
+  .hero{position:relative;padding:70px 0 40px;text-align:center;overflow:hidden;background:
+    linear-gradient(180deg,rgba(11,13,18,.75) 0%,rgba(11,13,18,.9) 55%,rgba(11,13,18,.98) 100%),
+    url('https://www.just4usmedia.net/just4us-remote-bg.jpg') center/cover no-repeat,
+    #0b0d12}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at top,rgba(255,106,0,.14),transparent 55%);pointer-events:none}
+  .hero-inner{position:relative}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,106,0,.12);border:1px solid rgba(255,106,0,.3);color:var(--primary);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;margin-bottom:22px}
+  .hero h1{font-size:clamp(34px,5vw,52px);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:18px;max-width:900px;margin-left:auto;margin-right:auto}
+  .hero h1 span{background:linear-gradient(135deg,var(--primary),var(--primary-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hero p{color:var(--muted);font-size:18px;max-width:640px;margin:0 auto}
+  /* PRICING TABS */
+  .pricing{padding:40px 0 80px;position:relative}
+  .tab-radio{position:absolute;opacity:0;pointer-events:none}
+  .tabs{display:flex;justify-content:center;gap:8px;margin-bottom:40px;flex-wrap:wrap;background:var(--bg-2);padding:8px;border-radius:14px;border:1px solid var(--border);max-width:720px;margin-left:auto;margin-right:auto}
+  .tab{flex:1;padding:14px 20px;background:transparent;color:var(--muted);border:none;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;transition:all .2s;font-family:inherit;white-space:nowrap;text-align:center;user-select:none}
+  .tab:hover{color:#fff}
+  .tab-panel{display:none}
+  .tab-panel{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+  #tab-1:checked ~ .tabs label[for="tab-1"],
+  #tab-2:checked ~ .tabs label[for="tab-2"],
+  #tab-3:checked ~ .tabs label[for="tab-3"]{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 6px 16px rgba(255,106,0,.3)}
+  #tab-1:checked ~ #panel-1,
+  #tab-2:checked ~ #panel-2,
+  #tab-3:checked ~ #panel-3{display:grid}
+  .plan-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px 28px;transition:all .3s;position:relative;display:flex;flex-direction:column}
+  .plan-card:hover{transform:translateY(-6px);border-color:rgba(255,106,0,.4);box-shadow:0 20px 50px rgba(0,0,0,.4)}
+  .plan-card.featured{border-color:var(--primary);background:linear-gradient(180deg,rgba(255,106,0,.08),transparent 60%),var(--card)}
+  .plan-card.featured::before{content:"BEST VALUE";position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;padding:6px 18px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.15em;box-shadow:0 6px 16px rgba(255,106,0,.4)}
+  .plan-name{font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);margin-bottom:8px}
+  .plan-desc{color:var(--muted);font-size:14px;margin-bottom:18px;min-height:42px}
+  .plan-price{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
+  .plan-currency{font-size:22px;font-weight:700;color:var(--muted)}
+  .plan-amount{font-size:44px;font-weight:900;letter-spacing:-.02em}
+  .plan-period{color:var(--faint);font-size:14px;margin-bottom:22px}
+  .plan-features{list-style:none;margin-bottom:28px;flex:1}
+  .plan-features li{padding:8px 0;color:var(--muted);font-size:14px;display:flex;gap:10px;align-items:flex-start}
+  .plan-features li::before{content:"✓";color:var(--success);font-weight:800;flex-shrink:0}
+  .plan-cta{display:block;width:100%;padding:14px;border-radius:10px;font-weight:700;text-align:center;font-size:15px;transition:all .25s;border:1.5px solid rgba(255,106,0,.45);background:rgba(255,106,0,.08);color:#fff}
+  .plan-cta:hover{border-color:var(--primary);background:rgba(255,106,0,.2);transform:translateY(-1px);box-shadow:0 6px 18px rgba(255,106,0,.2)}
+  .plan-card.featured .plan-cta{background:linear-gradient(135deg,var(--primary),var(--primary-2));border-color:transparent;color:#fff;box-shadow:0 8px 20px rgba(255,106,0,.3)}
+  .plan-card.featured .plan-cta:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(255,106,0,.45)}
+  /* COMPARE STRIP */
+  .compare{background:var(--bg-2);padding:50px 0}
+  .compare-title{text-align:center;font-size:22px;font-weight:700;margin-bottom:24px}
+  .compare-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:900px;margin:0 auto;text-align:center}
+  .compare-cell{padding:18px;background:var(--card);border:1px solid var(--border);border-radius:12px}
+  .compare-cell-num{font-size:24px;font-weight:900;color:var(--primary);margin-bottom:4px}
+  .compare-cell-label{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+  /* PARTNER SECTION */
+  .partner{padding:100px 0;position:relative;overflow:hidden;background:
+    linear-gradient(180deg,rgba(15,19,32,.94),rgba(11,13,18,.98)),
+    url('https://www.just4usmedia.net/just4us-remote-bg.jpg') center/cover fixed no-repeat,
+    #0f1320}
+  .partner > .container{position:relative;z-index:1}
+  .partner::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 20% 30%,rgba(255,106,0,.18),transparent 50%),radial-gradient(ellipse at 80% 70%,rgba(255,215,0,.1),transparent 50%);pointer-events:none}
+  .partner-intro{text-align:center;max-width:820px;margin:0 auto 56px;position:relative;z-index:1}
+  .partner-kicker{display:inline-flex;align-items:center;gap:10px;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);color:#ffd700;padding:8px 18px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
+  .partner-title{font-size:clamp(32px,5vw,48px);font-weight:900;letter-spacing:-.02em;margin-bottom:18px;line-height:1.1}
+  .partner-title em{background:linear-gradient(135deg,#ffd700,#ffa500);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-style:normal}
+  .partner-sub{color:var(--muted);font-size:18px;max-width:680px;margin:0 auto}
+  .section-label{text-align:center;color:var(--primary);font-weight:700;font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px}
+  .section-title{text-align:center;font-size:clamp(28px,3.5vw,40px);font-weight:800;max-width:800px;margin:0 auto 18px;letter-spacing:-.01em}
+  .section-sub{text-align:center;color:var(--muted);max-width:640px;margin:0 auto 48px;font-size:17px}
+  .partner-benefits{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1000px;margin:0 auto 60px;position:relative;z-index:1}
+  @media(max-width:820px){.partner-benefits{grid-template-columns:repeat(2,1fr)}}
+  .benefit{background:rgba(22,27,39,.6);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:22px 20px;text-align:center;backdrop-filter:blur(6px)}
+  .benefit-icon{margin-bottom:10px;display:inline-flex;width:44px;height:44px;align-items:center;justify-content:center;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.25);border-radius:10px;color:#ffd700}
+  .benefit-icon svg{width:24px;height:24px}
+  .badge svg, .partner-kicker svg, .partner-badge svg{width:14px;height:14px;flex-shrink:0}
+  .benefit-title{font-weight:700;font-size:15px;margin-bottom:6px}
+  .benefit-desc{color:var(--muted);font-size:13px}
+  .partner-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:1000px;margin:0 auto;position:relative;z-index:1}
+  @media(max-width:820px){.partner-grid{grid-template-columns:1fr}}
+  .partner-card{background:linear-gradient(180deg,var(--card),var(--card-2));border:1.5px solid rgba(255,106,0,.25);border-radius:22px;padding:44px 38px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s,border-color .3s}
+  .partner-card:hover{transform:translateY(-8px);box-shadow:0 30px 60px rgba(0,0,0,.5)}
+  .partner-card::before{content:"";position:absolute;top:-50%;right:-30%;width:360px;height:360px;background:radial-gradient(circle,rgba(255,106,0,.18),transparent 70%);pointer-events:none}
+  .partner-silver{border-color:rgba(200,200,210,.35)}
+  .partner-silver:hover{border-color:rgba(200,200,210,.6);box-shadow:0 30px 60px rgba(200,200,210,.15)}
+  .partner-gold{border-color:rgba(255,215,0,.45);background:linear-gradient(180deg,rgba(255,215,0,.06),transparent 60%),linear-gradient(180deg,var(--card),var(--card-2))}
+  .partner-gold:hover{border-color:rgba(255,215,0,.7);box-shadow:0 30px 60px rgba(255,215,0,.18)}
+  .partner-gold::after{content:"MOST POPULAR";position:absolute;top:-14px;right:30px;background:linear-gradient(135deg,#ffd700,#ffa500);color:#1a1a1a;padding:7px 18px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.15em;box-shadow:0 6px 16px rgba(255,215,0,.4)}
+  .partner-badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.15em;padding:7px 16px;border-radius:999px;margin-bottom:18px;position:relative}
+  .partner-silver .partner-badge{background:rgba(200,200,210,.15);color:#c8c8d2;border:1px solid rgba(200,200,210,.25)}
+  .partner-gold .partner-badge{background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.35)}
+  .partner-card h3{font-size:32px;font-weight:900;margin-bottom:8px;position:relative;letter-spacing:-.01em}
+  .partner-card .tagline{color:var(--muted);font-size:15px;margin-bottom:24px;position:relative}
+  .partner-card .price{display:flex;align-items:baseline;gap:6px;margin-bottom:4px;position:relative}
+  .partner-card .price .cur{font-size:22px;font-weight:700;color:var(--muted)}
+  .partner-card .price .amt{font-size:52px;font-weight:900;color:var(--primary);letter-spacing:-.02em}
+  .partner-gold .price .amt{color:#ffd700}
+  .partner-card .price-note{color:var(--faint);font-size:13px;margin-bottom:24px;position:relative}
+  .partner-features{list-style:none;margin-bottom:28px;position:relative}
+  .partner-features li{padding:10px 0;color:var(--muted);font-size:15px;display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,.05)}
+  .partner-features li:last-child{border-bottom:none}
+  .partner-features li::before{content:"✓";color:var(--success);font-weight:800;flex-shrink:0;font-size:16px}
+  .partner-card .btn{display:block;width:100%;padding:16px;border-radius:12px;font-weight:800;text-align:center;font-size:16px;background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 10px 25px rgba(255,106,0,.35);transition:all .25s;position:relative;border:none;cursor:pointer}
+  .partner-card .btn:hover{transform:translateY(-2px);box-shadow:0 15px 35px rgba(255,106,0,.5)}
+  .partner-gold .btn{background:linear-gradient(135deg,#ffd700,#ffa500);color:#1a1a1a;box-shadow:0 10px 25px rgba(255,215,0,.4)}
+  .partner-gold .btn:hover{box-shadow:0 15px 35px rgba(255,215,0,.55)}
+  /* FAQ */
+  .faq-section{padding:80px 0;background:var(--bg-2)}
+  .faq-grid{max-width:820px;margin:0 auto}
+  .faq-item{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden;transition:border-color .2s}
+  .faq-item:hover{border-color:rgba(255,106,0,.3)}
+  .faq-q{padding:22px 26px;font-weight:600;font-size:17px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+  .faq-q::after{content:"+";color:var(--primary);font-size:24px;transition:transform .25s}
+  .faq-item.open .faq-q::after{transform:rotate(45deg)}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;padding:0 26px;color:var(--muted)}
+  .faq-item.open .faq-a{max-height:300px;padding:0 26px 22px}
+  /* FINAL CTA */
+  .final-cta{padding:80px 0;text-align:center}
+  .final-cta h2{font-size:clamp(28px,4vw,42px);font-weight:900;margin-bottom:18px}
+  .final-cta p{color:var(--muted);font-size:18px;margin-bottom:32px;max-width:560px;margin-left:auto;margin-right:auto}
+  .btn-primary{display:inline-flex;padding:18px 36px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;font-weight:700;font-size:17px;transition:all .25s;box-shadow:0 10px 30px rgba(255,106,0,.3);border:none;cursor:pointer}
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(255,106,0,.45)}
+  .btn-ghost{display:inline-flex;padding:18px 36px;border-radius:12px;background:transparent;color:#fff;font-weight:700;font-size:17px;border:1px solid var(--border);transition:all .25s;cursor:pointer}
+  .btn-ghost:hover{border-color:var(--primary);background:rgba(255,106,0,.08)}
+  /* FOOTER */
+  footer{background:#06080c;padding:60px 0 30px;border-top:1px solid var(--border)}
+  .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+  @media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:30px}}
+  .footer-about p{color:var(--muted);margin-top:14px;font-size:14px;max-width:320px}
+  .footer-col h4{font-size:14px;text-transform:uppercase;letter-spacing:.12em;color:var(--primary);margin-bottom:16px;font-weight:700}
+  .footer-col ul{list-style:none}
+  .footer-col li{margin-bottom:10px}
+  .footer-col a{color:var(--muted);font-size:14px;transition:color .2s}
+  .footer-col a:hover{color:var(--primary)}
+  .footer-bottom{padding-top:26px;border-top:1px solid var(--border);text-align:center;color:var(--faint);font-size:13px}
+</style>
+
+<!-- PROMO BAR -->
+<div class="promo-bar">
+  <span class="promo-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M8.5 13.5 7 21l5-3 5 3-1.5-7.5"/></svg></span>
+  <strong>BECOME AN AFFILIATE</strong> — Earn <strong>1 Month FREE</strong> for every 3-month+ plan you refer to a new customer
+</div>
+<!-- NAV -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <ul class="nav-links">
+      <li><a href="#pricing">Plans</a></li>
+      <li><a href="#partner" style="color:#ffd700;display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>Reseller</a></li>
+      <li><a href="https://www.just4usmedia.net/1-landing-tripwire.html#features">Features</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="https://www.just4usmedia.net/1-landing-tripwire.html" class="logo">
+      <div class="logo-mark">
+        <img src="https://www.just4usmedia.net/just4us-logo.png" alt="Just4us Media Production">
+      </div>
+    </a>
+    <div class="nav-right">
+      <a href="https://whop.com/checkout/plan_Hh0AsI7bE5wMH/" class="nav-cta">24hr All-Access Pass</a>
+    </div>
+  </div>
+</nav>
+<!-- HERO -->
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>Simple Pricing · No Hidden Fees</div>
+    <h1>Pick The Plan <span>Built For You</span></h1>
+    <p>Whether you stream solo or the whole house watches — there's a plan built to fit. Monthly, quarterly, 6-month, and annual options. Longer commits unlock bigger savings.</p>
+  </div>
+</section>
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <input type="radio" name="plan-tab" id="tab-1" class="tab-radio" checked>
+    <input type="radio" name="plan-tab" id="tab-2" class="tab-radio">
+    <input type="radio" name="plan-tab" id="tab-3" class="tab-radio">
+    <div class="tabs">
+      <label for="tab-1" class="tab">1 Connection</label>
+      <label for="tab-2" class="tab">2 Connections</label>
+      <label for="tab-3" class="tab">3 Connections</label>
+    </div>
+    <!-- 1 CONNECTION -->
+    <div class="tab-panel" id="panel-1">
+      <div class="plan-card">
+        <div class="plan-name">Starter Pro</div>
+        <p class="plan-desc">The entry-level solo plan. Flexibility to cancel anytime.</p>
+        <div class="plan-price"><span class="plan-currency">$</span><span class="plan-amount">11.99</span></div>
+        <div class="plan-period">per month · billed monthly</div>
+        <ul class="plan-features">
+          <li>1 simultaneous connection</li>
+          <li>15,000+ live channels</li>
+          <li>40,000+ VOD titles</li>
+          <li>4K UHD quality</li>
+          <li>All devices supported</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <a href="https://whop.com/checkout/plan_76v6Ea4yB5LqC/" class="plan-cta">Choose Starter Pro</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">Standard Trio</div>
+        <p class="plan-desc">3-month commit. Lock in a lower effective monthly rate.</p>
+        <div class="plan-price"><span class="plan-currency">$</span><span class="plan-amount">29.99</span></div>
+        <div class="plan-period">every 3 months · ~$10/mo</div>
+        <ul class="plan-features">
+          <li>1 simultaneous connection</li>
+          <li>15,000+ live channels</li>
+          <li>40,000+ VOD titles</li>
+          <li>4K UHD quality</li>
+          <li>Save 17% vs monthly</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="https://whop.com/checkout/plan_2YCfePuFCpW7z/" class="plan-cta">Choose Standard Trio</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">Season Pass</div>
+        <p class="plan-desc">6 months of uninterrupted streaming. Solid middle-ground.</p>
+        <div class="plan-price"><span class="plan-currency">$</span><span class="plan-amount">54.99</span></div>
+        <div class="plan-period">every 6 months · ~$9.17/mo</div>
+        <ul class="plan-features">
+          <li>1 simultaneous connection</li>
+          <li>15,000+ live channels</li>
+          <li>40,000+ VOD titles</li>
+          <li>4K UHD quality</li>
+          <li>Save 23% vs monthly</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="https://whop.com/checkout/plan_Ed7bE3gm7nEIl/" class="plan-cta">Choose Season Pass</a>
+      </div>
+      <div class="plan-card featured">
+        <div class="plan-name">Value Bundle</div>
+        <p class="plan-desc">A full year of streaming at the lowest effective rate.</p>
+        <div class="plan-price"><span class="plan-currency">$</span><span class="plan-amount">89.99</span></div>
+        <div class="plan-period">per year · ~$7.50/mo</div>
+        <ul class="plan-features">
+          <li>1 simultaneous connection</li>
+          <li>15,000+ live channels</li>
+          <li>40,000+ VOD titles</li>
+          <li>4K UHD quality</li>
+          <li>Save 37% vs monthly</li>
+          <li>Priority support</li>
+          <li>Locked-in pricing for 12 months</li>
+        </ul>
+        <a href="https://whop.com/checkout/plan_XRvVPabNbe7Vz/" class="plan-cta">Choose Value Bundle</a>
+      </div>
+    </div>
+    <!-- 2 CONNECTIONS -->
+    <div class="tab-panel" id="panel-2">
+      <div class="plan-card">
+        <div class="plan-name">Multi-Room</div>
+        <p class="plan-desc">Two rooms, two streams, zero conflict. Monthly flexibility.</p>
+        <div class="plan-price"><span class="plan-currency">$</span><span class="plan-amount">19.99</span></div>
+        <div class="plan-period">per month · billed monthly</div>
+        <ul class="plan-features">
+          <li>2 simultaneous connections</li>
+          <li>15,000+ live channels</li>
+          <li>40,000+ VOD titles</li>
+          <li>4K UHD quality</li>
+          <li>All devices supported</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <a href="https://whop.com/checkout/plan_EdzGg9xdrcyRK/" class="plan-cta">Choose Multi-Room</a>
+      </div>
+      <div class="plan-card featured">
+        <div class="plan-name">Duo Quarter</div>
+        <p class="plan-desc">Two streams for three months at a better effective rate.</p>
+        <div class="plan-price"><span class="plan-currency">$</span><span class="plan-amount">39.99</span></div>
+        <div class="plan-period">every 3 months · ~$13.33/mo</div>
+        <ul class="plan-features">
+          <li>2 simultaneous connections</li>
+          <li>15,000+ live channels</li>
+          <li>40,000+ VOD titles</li>
+          <li>4K UHD quality</li>
+          <li>Save 33% vs monthly</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="https://whop.com/checkout/plan_Xl28bQZFIDeDr/" class="plan-cta">Choose Duo Quarter</a>
+      </div>
+    </div>
+    <!-- 3 CONNECTIONS -->
+    <div class="tab-panel" id="panel-3">
+      <div class="plan-card">
+        <div class="plan-name">Family Quarter</div>
+        <p class="plan-desc">Three streams for the whole household. 3-month commit.</p>
+        <div class="plan-price"><span class="plan-currency">$</span><span class="plan-amount">54.99</span></div>
+        <div class="plan-period">every 3 months · ~$18.33/mo</div>
+        <ul class="plan-features">
+          <li>3 simultaneous connections</li>
+          <li>15,000+ live channels</li>
+          <li>40,000+ VOD titles</li>
+          <li>4K UHD quality</li>
+          <li>Whole-family streaming</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="https://whop.com/checkout/plan_PGiYEsijpnHFm/" class="plan-cta">Choose Family Quarter</a>
+      </div>
+      <div class="plan-card featured">
+        <div class="plan-name">Elite Annual</div>
+        <p class="plan-desc">Our top recurring package. Three streams, full year, best rate.</p>
+        <div class="plan-price"><span class="plan-currency">$</span><span class="plan-amount">149.99</span></div>
+        <div class="plan-period">per year · ~$12.50/mo</div>
+        <ul class="plan-features">
+          <li>3 simultaneous connections</li>
+          <li>15,000+ live channels</li>
+          <li>40,000+ VOD titles</li>
+          <li>4K UHD quality</li>
+          <li>Whole-family streaming</li>
+          <li>VIP priority support</li>
+          <li>Locked-in pricing for 12 months</li>
+        </ul>
+        <a href="https://whop.com/checkout/plan_MJMjoafJdS7xJ/" class="plan-cta">Choose Elite Annual</a>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- PARTNER / RESELLER SECTION -->
+<section class="partner" id="partner">
+  <div class="container">
+    <div class="partner-intro">
+      <div class="partner-kicker"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>Reseller Program</div>
+      <h2 class="partner-title">Turn Just4us Media Into <em>Your Business</em></h2>
+      <p class="partner-sub">Become an official reseller and get your own credentials pool, dedicated support, and revenue-share opportunities. Perfect for local shops, tech installers, and content creators building a customer base.</p>
+    </div>
+    <div class="partner-benefits">
+      <div class="benefit">
+        <span class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        <div class="benefit-title">Resell & Earn</div>
+        <div class="benefit-desc">Keep the margin on every credential you activate for your customers.</div>
+      </div>
+      <div class="benefit">
+        <span class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></span>
+        <div class="benefit-title">Your Own Brand</div>
+        <div class="benefit-desc">White-label options available. Build your customer list, not ours.</div>
+      </div>
+      <div class="benefit">
+        <span class="benefit-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>
+        <div class="benefit-title">Priority Support</div>
+        <div class="benefit-desc">Dedicated channel — skip the queue, get answers fast.</div>
+      </div>
+      <div class="benefit">
+        <span class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg></span>
+        <div class="benefit-title">Scale With Us</div>
+        <div class="benefit-desc">Volume discounts, custom onboarding, and rev-share for top partners.</div>
+      </div>
+    </div>
+    <div class="partner-grid">
+      <div class="partner-card partner-silver">
+        <div class="partner-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="M8 10 5 3h4l2 4"/><path d="m16 10 3-7h-4l-2 4"/></svg>Silver Partner</div>
+        <h3>Start Reselling</h3>
+        <p class="tagline">One-time activation. Launch your own IPTV reseller business today.</p>
+        <div class="price"><span class="cur">$</span><span class="amt">250</span></div>
+        <div class="price-note">one-time payment · lifetime partner status</div>
+        <ul class="partner-features">
+          <li>Partner-level account access</li>
+          <li>Reseller credential generation</li>
+          <li>Priority support channel</li>
+          <li>Full onboarding & training</li>
+          <li>Access to partner-only resources</li>
+          <li>Cancel-anytime customer management</li>
+        </ul>
+        <a href="https://whop.com/checkout/plan_EeS7D6VfF4XiI/" class="btn">Become a Silver Partner →</a>
+      </div>
+      <div class="partner-card partner-gold">
+        <div class="partner-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="M8 10 5 3h4l2 4"/><path d="m16 10 3-7h-4l-2 4"/></svg>Gold Partner</div>
+        <h3>Maximum Tier</h3>
+        <p class="tagline">Our top reseller tier. Everything in Silver — plus rev-share, white-label, and a dedicated contact.</p>
+        <div class="price"><span class="cur">$</span><span class="amt">750</span></div>
+        <div class="price-note">one-time payment · lifetime partner status</div>
+        <ul class="partner-features">
+          <li><strong>Everything in Silver, plus:</strong></li>
+          <li>Dedicated partner success contact</li>
+          <li>Priority feature requests</li>
+          <li>White-label option available</li>
+          <li>Revenue share eligibility</li>
+          <li>Volume discount tiers unlocked</li>
+          <li>Quarterly business reviews</li>
+        </ul>
+        <a href="https://whop.com/checkout/plan_7F3B2Fli9drrE/" class="btn">Become a Gold Partner →</a>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- COMPARE STRIP -->
+<section class="compare">
+  <div class="container">
+    <div class="compare-title">Every plan includes the full library</div>
+    <div class="compare-row">
+      <div class="compare-cell"><div class="compare-cell-num">15,000+</div><div class="compare-cell-label">Live Channels</div></div>
+      <div class="compare-cell"><div class="compare-cell-num">40,000+</div><div class="compare-cell-label">VOD Titles</div></div>
+      <div class="compare-cell"><div class="compare-cell-num">4K</div><div class="compare-cell-label">Ultra HD Quality</div></div>
+      <div class="compare-cell"><div class="compare-cell-num">24/7</div><div class="compare-cell-label">Support</div></div>
+    </div>
+  </div>
+</section>
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="container">
+    <div class="section-label">Picking A Plan</div>
+    <h2 class="section-title">Common Questions</h2>
+    <div class="faq-grid">
+      <div class="faq-item open" onclick="this.classList.toggle('open')">
+        <div class="faq-q">What's a "connection"?</div>
+        <div class="faq-a"><p>A connection is one device streaming at a time. A 1-connection plan = one screen at a time. A 3-connection plan = three different people can watch different things simultaneously.</p></div>
+      </div>
+      <div class="faq-item open" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Can I upgrade or change my plan later?</div>
+        <div class="faq-a"><p>Yes. You can upgrade to more connections or switch to a longer billing cycle at any time. Just contact support and we'll prorate the difference. Downgrades take effect at the next renewal.</p></div>
+      </div>
+      <div class="faq-item open" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Does my subscription auto-renew?</div>
+        <div class="faq-a"><p>Yes, plans renew automatically at the end of your billing cycle so service stays uninterrupted. You can cancel auto-renewal anytime from your Whop account dashboard — no cancellation fees, no questions asked.</p></div>
+      </div>
+      <div class="faq-item open" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Which devices work with Just4us Media?</div>
+        <div class="faq-a"><p>Firestick, Android TV, Android phones &amp; tablets, iOS (iPhone/iPad via compatible players), Smart TVs (Samsung, LG, Android TV built-in), MAG boxes, Enigma2, and any app that supports M3U or Xtream Codes. Setup guides are sent with your login credentials.</p></div>
+      </div>
+      <div class="faq-item open" onclick="this.classList.toggle('open')">
+        <div class="faq-q">What's the difference between Silver and Gold Partner?</div>
+        <div class="faq-a"><p>Silver Partner ($250) gets you 25 reseller credits plus training and a private Telegram support group — perfect for launching a reseller business. Gold Partner ($750) includes 100 credits, priority white-label branding, revenue share eligibility, and quarterly strategy calls for partners who want to scale.</p></div>
+      </div>
+      <div class="faq-item open" onclick="this.classList.toggle('open')">
+        <div class="faq-q">How long does activation take?</div>
+        <div class="faq-a"><p>Most accounts are activated within 5–60 minutes of purchase. In rare cases during high-volume periods, it may take up to 24 hours. You'll receive your login details by email as soon as activation is complete.</p></div>
+      </div>
+      <div class="faq-item open" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Is there a free trial or refund?</div>
+        <div class="faq-a"><p>We offer a free 24-Hour All-Access Pass (no credit card required) so you can test the full service risk-free before committing. Subscription plans are non-refundable once activated — that's why we recommend starting with the free pass. See our <a href="https://www.just4usmedia.net/refund.html" style="color:var(--primary)">Refund Policy</a> for full details.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <div class="logo" style="justify-content:flex-start">
+          <div class="logo-mark"><img src="https://www.just4usmedia.net/just4us-logo.png" alt="Just4us Media"></div>
+          <span>Just4us Media</span>
+        </div>
+        <p>Premium IPTV streaming with 15,000+ live channels, 40,000+ on-demand titles, and 4K support. Powered by tier-1 CDN infrastructure.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="https://www.just4usmedia.net/1-landing-tripwire.html#features">Features</a></li>
+          <li><a href="https://www.just4usmedia.net/2-upsell-plans.html">Plans</a></li>
+          <li><a href="https://www.just4usmedia.net/4-partnership-systemeio.html">Partner Program</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="mailto:support@just4usmedia.net">Contact Support</a></li>
+          <li><a href="https://www.just4usmedia.net/1-landing-tripwire.html#testimonials">Reviews</a></li>
+          <li><a href="https://www.just4usmedia.net/refund.html">Refund Policy</a></li>
+          <li><a href="https://www.just4usmedia.net/dmca.html">DMCA</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="https://www.just4usmedia.net/terms.html">Terms of Service</a></li>
+          <li><a href="https://www.just4usmedia.net/privacy.html">Privacy Policy</a></li>
+          <li><a href="https://www.just4usmedia.net/refund.html">Refund Policy</a></li>
+          <li><a href="https://www.just4usmedia.net/dmca.html">DMCA Notice</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Just4us Media. All rights reserved. &middot; Atlanta, GA</p>
+      <p style="margin-top:8px;font-size:12px;color:var(--faint)">Just4us Media provides access to streaming content. We do not host, store, or distribute any media files. All content is delivered via third-party providers.</p>
+    </div>
+  </div>
+</footer>
+<script>
+  // FAQ toggle
+  document.querySelectorAll('.faq-item').forEach(function(item){
+    item.addEventListener('click', function(e){ e.stopPropagation(); });
+  });
+</script>
