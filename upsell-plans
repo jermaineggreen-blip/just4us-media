@@ -6,82 +6,51 @@
   <meta name="description" content="Just4us Media Premium IPTV Pricing Plans — Flexible subscriptions and reseller partnership options.">
   <title>Plans & Pricing - Just4us Media Premium IPTV</title>
 
-   <script>
-(function() {
-  // 1. VISITOR ID GENERATOR
-  function getVisitorId() {
-    let visitorId = localStorage.getItem('j4u_visitor_id');
-    if (!visitorId) {
-      visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('j4u_visitor_id', visitorId);
-    }
-    return visitorId;
-  }
-
-  // 2. WEBHOOK DISPATCHER
-  function sendToZapier(data) {
-    const webhookUrl = 'https://hooks.zapier.com/hooks/catch/19154433/2765onh/';
-    
-    fetch(webhookUrl, {
-      method: 'POST',
-      mode: 'no-cors', // Optimization for Zapier hooks
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(data)
-    }).catch(err => console.debug('Tracking skipped'));
-  }
-
-  // 3. PAGE VISIT TRACKING
-  function trackPageVisit() {
-    const payload = {
-      visitor_id: getVisitorId(),
-      event_type: 'page_view',
-      page_url: window.location.pathname.split('/').pop() || 'plans',
-      timestamp: new Date().toISOString(),
-      last_tier_clicked: sessionStorage.getItem('j4u_tier_viewed') || 'none'
-    };
-    sendToZapier(payload);
-  }
-
-  // 4. CLICK TRACKING (Tiers & Partners)
-  function trackTierClick() {
-    document.addEventListener('click', function(e) {
-      const button = e.target.closest('.plan-cta, .btn');
-      if (button) {
-        const btnText = button.textContent.toLowerCase();
-        let tier = 'unknown';
-
-        // Logic to categorize the click
-        if (btnText.includes('starter')) tier = '1-Connection';
-        if (btnText.includes('standard') || btnText.includes('season')) tier = '1-Connection-Bulk';
-        if (btnText.includes('multi-room') || btnText.includes('duo')) tier = '2-Connection';
-        if (btnText.includes('family') || btnText.includes('elite')) tier = '3-Connection';
-        if (btnText.includes('silver')) tier = 'Partner-Silver';
-        if (btnText.includes('gold')) tier = 'Partner-Gold';
-
-        sessionStorage.setItem('j4u_tier_viewed', tier);
-
-        sendToZapier({
-          visitor_id: getVisitorId(),
-          event_type: 'click',
-          selected_tier: tier,
-          timestamp: new Date().toISOString()
-        });
+  <script>
+  (function() {
+    // VISITOR ID GENERATOR & TRACKING
+    function getVisitorId() {
+      let visitorId = localStorage.getItem('j4u_visitor_id');
+      if (!visitorId) {
+        visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('j4u_visitor_id', visitorId);
       }
-    });
-  }
-
-  // 5. INITIALIZE
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
+      return visitorId;
+    }
+    function trackPageVisit() {
+      const visitorId = getVisitorId();
+      const pageUrl = window.location.pathname.split('/').pop() || 'plans';
+      const timestamp = new Date().toISOString();
+      const tierViewed = sessionStorage.getItem('j4u_tier_viewed') || 'N/A';
+      const webhookUrl = 'https://hooks.zapier.com/hooks/catch/19154433/2765onh/';
+      if (webhookUrl.includes('YOUR_ZAP')) return;
+      const payload = {visitor_id: visitorId, page_visited: pageUrl, timestamp: timestamp, tier_viewed: tierViewed};
+      fetch(webhookUrl, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)}).catch(err => {});
+    }
+    function trackTierClick() {
+      document.addEventListener('click', function(e) {
+        const button = e.target.closest('.plan-cta, .btn');
+        if (button) {
+          const tierText = button.textContent.toLowerCase();
+          let tier = 'unknown';
+          if (tierText.includes('starter')) tier = '1-Connection';
+          if (tierText.includes('multi-room') || tierText.includes('duo')) tier = '2-Connection';
+          if (tierText.includes('family') || tierText.includes('elite')) tier = '3-Connection';
+          sessionStorage.setItem('j4u_tier_viewed', tier);
+        }
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        trackPageVisit();
+        trackTierClick();
+      });
+    } else {
       trackPageVisit();
       trackTierClick();
-    });
-  } else {
-    trackPageVisit();
-    trackTierClick();
-  }
-})();
-</script>
+    }
+  })();
+  </script>
 
   <style>
     :root{
@@ -117,7 +86,7 @@
     /* HERO */
     .hero{position:relative;padding:70px 0 40px;text-align:center;overflow:hidden;background:
       linear-gradient(180deg,rgba(11,13,18,.75) 0%,rgba(11,13,18,.9) 55%,rgba(11,13,18,.98) 100%),
-      url('just4us-remote-bg.jpg') center/cover no-repeat,
+      url('https://raw.githubusercontent.com/jermaineggreen-blip/just4us-media/main/just4us-remote-bg.jpg') center/cover no-repeat,
       #0b0d12}
     .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at top,rgba(255,106,0,.14),transparent 55%);pointer-events:none}
     .hero-inner{position:relative}
@@ -166,7 +135,7 @@
     /* PARTNER SECTION */
     .partner{padding:100px 0;position:relative;overflow:hidden;background:
       linear-gradient(180deg,rgba(15,19,32,.94),rgba(11,13,18,.98)),
-      url('just4us-remote-bg.jpg') center/cover fixed no-repeat,
+      url('https://raw.githubusercontent.com/jermaineggreen-blip/just4us-media/main/just4us-remote-bg.jpg') center/cover fixed no-repeat,
       #0f1320}
     .partner > .container{position:relative;z-index:1}
     .partner::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 20% 30%,rgba(255,106,0,.18),transparent 50%),radial-gradient(ellipse at 80% 70%,rgba(255,215,0,.1),transparent 50%);pointer-events:none}
@@ -262,7 +231,7 @@
     </ul>
     <a href="index.html" class="logo">
       <div class="logo-mark">
-        <img src="logo canva.png" alt="Just4us Media Production">
+        <img src="https://raw.githubusercontent.com/jermaineggreen-blip/just4us-media/main/logo-canva.png" alt="Just4us Media Production">
       </div>
     </a>
     <div class="nav-right">
@@ -544,7 +513,7 @@
     <div class="footer-grid">
       <div class="footer-about">
         <div class="logo" style="justify-content:flex-start">
-          <div class="logo-mark"><img src="logo canva.png" alt="Just4us Media"></div>
+          <div class="logo-mark"><img src="https://raw.githubusercontent.com/jermaineggreen-blip/just4us-media/main/logo-canva.png" alt="Just4us Media"></div>
           <span>Just4us Media</span>
         </div>
         <p>Premium IPTV streaming with 15,000+ live channels, 40,000+ on-demand titles, and 4K support. Powered by tier-1 CDN infrastructure.</p>
