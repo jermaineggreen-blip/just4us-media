@@ -1,0 +1,174 @@
+<script>
+(function() {
+  // VISITOR ID GENERATOR & TRACKING
+  function getVisitorId() {
+    let visitorId = localStorage.getItem('j4u_visitor_id');
+    if (!visitorId) {
+      visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('j4u_visitor_id', visitorId);
+    }
+    return visitorId;
+  }
+  function trackPageVisit() {
+    const visitorId = getVisitorId();
+    const pageUrl = window.location.pathname.split('/').pop() || '3-confirmation';
+    const timestamp = new Date().toISOString();
+    const tierViewed = sessionStorage.getItem('j4u_tier_viewed') || 'N/A';
+    const webhookUrl = 'https://hooks.zapier.com/hooks/catch/19154433/2765onh/';
+    if (webhookUrl.includes('YOUR_ZAP')) return;
+    const payload = {visitor_id: visitorId, page_visited: pageUrl, timestamp: timestamp, tier_viewed: tierViewed};
+    fetch(webhookUrl, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)}).catch(err => {});
+  }
+  function trackTierClick() {
+    document.addEventListener('click', function(e) {
+      const button = e.target.closest('.btn-primary, .plan-cta, .tier-cta');
+      if (button) {
+        const tierText = button.textContent.toLowerCase();
+        let tier = 'unknown';
+        if (tierText.includes('monthly')) tier = 'Monthly';
+        if (tierText.includes('3-month') || tierText.includes('bundle')) tier = '3-Month';
+        if (tierText.includes('annual')) tier = 'Annual';
+        sessionStorage.setItem('j4u_tier_viewed', tier);
+      }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      trackPageVisit();
+      trackTierClick();
+    });
+  } else {
+    trackPageVisit();
+    trackTierClick();
+  }
+})();
+</script>
+
+<style>
+  :root{
+    --bg:#0b0d12;--bg-2:#111520;--card:#161b27;--card-2:#1c2233;
+    --primary:#ff6a00;--primary-2:#ff9800;
+    --text:#ffffff;--muted:rgba(255,255,255,.7);--faint:rgba(255,255,255,.5);
+    --border:rgba(255,255,255,.08);--success:#22c55e;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text);line-height:1.6;min-height:100vh;display:flex;flex-direction:column;background:
+    linear-gradient(180deg,rgba(11,13,18,.82) 0%,rgba(11,13,18,.95) 100%),
+   url('just4us-remote-bg.jpg') center/cover no-repeat fixed,
+    var(--bg)}
+  .container{max-width:720px;margin:0 auto;padding:0 24px;width:100%}
+  a{color:inherit;text-decoration:none}
+  /* Simple nav */
+  .nav{padding:20px 0;border-bottom:1px solid var(--border)}
+  .nav-inner{display:flex;align-items:center;justify-content:center}
+  .logo{display:flex;align-items:center;gap:16px;font-weight:800;font-size:30px;justify-content:center;text-align:center}
+  .logo-mark{width:150px;height:150px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .logo-mark svg, .logo-mark img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(255,106,0,.25))}
+  /* Main card */
+  main{flex:1;display:flex;align-items:center;justify-content:center;padding:60px 0;position:relative}
+  main::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,106,0,.18),transparent 60%);pointer-events:none;z-index:0}
+  .confirmation-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:56px 48px;text-align:center;position:relative;z-index:1;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  @media(max-width:600px){.confirmation-card{padding:40px 24px}}
+  /* Success icon */
+  .check-circle{width:96px;height:96px;margin:0 auto 28px;background:linear-gradient(135deg,var(--primary),var(--primary-2));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 15px 40px rgba(255,106,0,.4);position:relative}
+  .check-circle::after{content:"";width:34px;height:18px;border-left:5px solid #fff;border-bottom:5px solid #fff;transform:translateY(-4px) rotate(-45deg)}
+  .success-label{display:inline-block;background:rgba(34,197,94,.15);color:var(--success);font-size:12px;font-weight:700;letter-spacing:.15em;padding:6px 14px;border-radius:999px;margin-bottom:16px;text-transform:uppercase}
+  h1{font-size:clamp(28px,4vw,40px);font-weight:800;margin-bottom:14px;letter-spacing:-.01em}
+  h1 span{background:linear-gradient(135deg,var(--primary),var(--primary-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .lead{color:var(--muted);font-size:18px;margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto}
+  /* Steps */
+  .next-steps{text-align:left;background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:32px}
+  .next-steps-title{font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--primary);margin-bottom:18px;text-align:center}
+  .step-row{display:flex;gap:16px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}
+  .step-row:last-child{border-bottom:none}
+  .step-circle{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(255,106,0,.15);border:1px solid rgba(255,106,0,.3);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+  .step-text{flex:1}
+  .step-text strong{display:block;margin-bottom:4px;font-size:15px}
+  .step-text p{color:var(--muted);font-size:14px;margin:0}
+  /* Timing callout */
+  .timing{background:linear-gradient(135deg,rgba(255,106,0,.12),rgba(255,152,0,.06));border:1px solid rgba(255,106,0,.2);border-radius:12px;padding:18px;margin-bottom:28px;display:flex;gap:14px;align-items:center;text-align:left}
+  .timing-icon{flex-shrink:0;width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,rgba(255,106,0,.2),rgba(255,152,0,.1));border:1px solid rgba(255,106,0,.3);display:flex;align-items:center;justify-content:center;color:var(--primary)}
+  .timing-icon svg{width:22px;height:22px}
+  .timing-text{flex:1;font-size:14px;color:var(--muted)}
+  .timing-text strong{color:#fff;display:block;margin-bottom:2px}
+  /* Support */
+  .support{color:var(--faint);font-size:14px;margin-top:22px}
+  .support a{color:var(--primary);font-weight:600}
+  .support a:hover{text-decoration:underline}
+  /* Footer */
+  footer{padding:30px 0;border-top:1px solid var(--border);text-align:center;color:var(--faint);font-size:13px}
+</style>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="https://www.just4usmedia.net/1-landing-tripwire.html" class="logo">
+      <div class="logo-mark">
+        <img src="https://www.just4usmedia.net/just4us-logo.png" alt="Just4us Media Production">
+      </div>
+    </a>
+  </div>
+</nav>
+
+<main>
+  <div class="container">
+    <div class="confirmation-card">
+      <div class="check-circle"></div>
+      <div class="success-label">✓ Payment Confirmed</div>
+      <h1>You're In. <span>Welcome To The Club.</span></h1>
+      <p class="lead">Your subscription is active. Your login credentials are being sent to your inbox right now.</p>
+      <div class="timing">
+        <div class="timing-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
+        <div class="timing-text">
+          <strong>Allow up to 24 hours for activation</strong>
+          Look for a message from <em>Just4us Media</em> with your credentials and setup guide. Accounts are manually provisioned, so please allow up to 24 hours for delivery.
+        </div>
+      </div>
+      <div class="next-steps">
+        <div class="next-steps-title">What Happens Next</div>
+        <div class="step-row">
+          <div class="step-circle">1</div>
+          <div class="step-text">
+            <strong>Your welcome email arrives</strong>
+            <p>Contains your username, password, playlist link (M3U URL), and direct setup guides for every device.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-circle">2</div>
+          <div class="step-text">
+            <strong>Install the player on your device</strong>
+            <p>TiviMate, IPTV Smarters, or any M3U/Xtream-compatible app. Setup guides for Firestick, Android TV, iOS, and Smart TV are all included.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-circle">3</div>
+          <div class="step-text">
+            <strong>Start streaming</strong>
+            <p>15,000+ live channels, 40,000+ movies &amp; shows, and full sports packages. Cast it to the TV, watch on your phone — whatever works.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-circle">4</div>
+          <div class="step-text">
+            <strong>Need help? We've got you</strong>
+            <p>Reply to your welcome email or hit up support anytime. Real humans, fast response.</p>
+          </div>
+        </div>
+      </div>
+      <div class="support">
+        Questions? Email <a href="mailto:support@just4usmedia.net">support@just4usmedia.net</a><br>
+        Not getting the welcome email after 24 hours? Check your spam folder, then reach out to support.
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <p>&copy; 2026 Just4us Media &middot; Atlanta, GA &middot;
+      <a href="https://www.just4usmedia.net/terms.html" style="color:var(--muted)">Terms</a> &middot;
+      <a href="https://www.just4usmedia.net/privacy.html" style="color:var(--muted)">Privacy</a> &middot;
+      <a href="https://www.just4usmedia.net/refund.html" style="color:var(--muted)">Refund Policy</a> &middot;
+      <a href="https://www.just4usmedia.net/dmca.html" style="color:var(--muted)">DMCA</a>
+    </p>
+  </div>
+</footer>
