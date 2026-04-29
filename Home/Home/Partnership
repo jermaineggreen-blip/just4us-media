@@ -152,7 +152,7 @@
   <div class="container nav-inner">
     <a href="index.html" class="logo">
       <div class="logo-mark">
-        <img src="just4us-logo.png" alt="Just4us Media">
+        <img src="logo%20canva.png" alt="Just4us Media Logo" class="logo">
       </div>
       Just4us Media
     </a>
@@ -249,7 +249,7 @@
           <li>Monthly payout</li>
           <li>Access to partner dashboard</li>
         </ul>
-        <button class="btn-primary tier-cta" onclick="window.location.href='https://buy.whop.com/checkout/plan_EeS7D6VfF4XiI/'">Become a Silver Partner</button>
+        <button class="btn-primary tier-cta" onclick="window.location.href='https://whop.com/checkout/plan_76v6Ea4yB5LqC/'">Become a Silver Partner</button>
       </div>
       <div class="tier featured">
         <h3>Gold Partner ⭐</h3>
@@ -265,7 +265,7 @@
           <li>Dedicated account manager</li>
           <li>Co-marketing opportunities</li>
         </ul>
-        <button class="btn-primary tier-cta" onclick="window.location.href='https://buy.whop.com/checkout/plan_7F3B2Fli9drrE/'">Become a Gold Partner</button>
+        <button class="btn-primary tier-cta" onclick="window.location.href='https://whop.com/checkout/plan_Hh0AsI7bE5wMH/'">Become a Gold Partner</button>
       </div>
     </div>
   </div>
@@ -416,8 +416,8 @@
       Join partners making serious money with Just4us. No risk, no upfront inventory, no headaches. Just pure recurring income.
     </p>
     <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-      <button class="btn-primary" onclick="window.location.href='https://buy.whop.com/checkout/plan_EeS7D6VfF4XiI/'">Become Silver Partner - $250</button>
-      <button class="btn-primary" style="background:var(--primary-2)" onclick="window.location.href='https://buy.whop.com/checkout/plan_7F3B2Fli9drrE/'">Become Gold Partner - $750</button>
+      <button class="btn-primary" onclick="window.location.href='https://whop.com/checkout/plan_76v6Ea4yB5LqC/'">Become Silver Partner - $250</button>
+      <button class="btn-primary" style="background:var(--primary-2)" onclick="window.location.href='https://whop.com/checkout/plan_Hh0AsI7bE5wMH/'">Become Gold Partner - $750</button>
     </div>
     <p style="color:var(--faint);font-size:13px;margin-top:20px">Questions? Email us at <a href="mailto:support@just4usmedia.net">support@just4usmedia.net</a></p>
   </div>
