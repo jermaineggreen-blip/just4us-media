@@ -22,7 +22,7 @@
     const pageUrl = window.location.pathname.split('/').pop() || 'partnership';
     const timestamp = new Date().toISOString();
     const tierViewed = sessionStorage.getItem('j4u_tier_viewed') || 'N/A';
-    const webhookUrl ='https://hooks.zapier.com/hooks/catch/19154433/2765onh/' ;
+    const webhookUrl ='https://hooks.zapier.com/hooks/catch/19154433/2765onh/';
     if (webhookUrl.includes('YOUR_ZAP')) return;
     const payload = {visitor_id: visitorId, page_visited: pageUrl, timestamp: timestamp, tier_viewed: tierViewed};
     fetch(webhookUrl, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)}).catch(err => {});
